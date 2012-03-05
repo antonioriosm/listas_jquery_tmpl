@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+	<meta charset='utf-8'/>
+	<title>Listas Desplegables con jQuery y Template</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery.tmpl.min.js"></script>
+	<script type="text/javascript">
+		$(document).on('ready', iniciar);
+
+		function iniciar () {
+			$.ajax({
+				url: 'listasTmpl.php',
+				data: {accion: 'dpto', id: null},
+				type: 'post',
+				success: function(resp){
+					$('#tmpl').tmpl(resp).appendTo('#sDep');
+					cargarProvincias();
+				},
+				dataType: 'json'
+			});
+
+			$('#sDep').on('change', cargarProvincias);
+			$('#sPro').on('change', cargarDistritos);
+			$('#sDis').on('change', cargarCentros);
+
+		}
+		function cargarProvincias() {
+			var cd = $('#sDep').val();
+			var data = 'accion=prov&id=' + cd;
+			$.get('listasTmpl.php', data, function(resp){
+				$('#tmpl').tmpl(resp).appendTo($('#sPro').empty());
+				cargarDistritos();
+			}, 'json');
+		}
+
+		function cargarDistritos() {
+			var cp = $('#sPro').val();
+			var data = 'accion=dist&id=' + cp;
+			$.post('listasTmpl.php', data, function(resp){
+				$('#tmpl').tmpl(resp).appendTo($('#sDis').empty());
+				cargarCentros();
+			}, 'json');
+		}
+		
+		function cargarCentros() {
+			var cd = $('#sDis').val();
+			var data = 'accion=cent&id=' + cd;
+			$.get('listasTmpl.php', data, function(resp){
+				$('#tmpl').tmpl(resp).appendTo($('#sCen').empty());
+			}, 'json');
+		}
+	</script>
+	<script id='tmpl' type="text/html">
+		<option value='${id}'>${descri}</option>
+	</script>
+</head>
+<body>
+	<h1>Listas Desplegables con jQuery</h1>
+	<p>
+		<label for='dpto'>Departamentos:</label>
+		<select id='sDep' class='medium'></select>
+	</p>
+	<p>
+		<label for='prov'>Provincias:</label>
+		<select id='sPro'></select>
+	</p>
+	<p>
+		<label for='dist'>Distritos:</label>
+		<select id='sDis' class='xlarge'></select>
+	</p>
+	<p>
+		<label for='ctro'>Centros:</label>
+		<select id='sCen' class='xxlarge'></select>
+	</p>
+</body>
+</html>
